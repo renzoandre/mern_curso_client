@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Checkbox, notification } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { emailValidation, minLengthValidation } from '../../../utils/formValidation';
+import { signUpApi } from '../../../api/user';
 
 import './RegisterForm.scss';
 
@@ -22,7 +23,6 @@ export default function RegisterForm() {
 
     const inputValidation = (e) => {
         const { type, name } = e.target;
-        console.log(e.target);
 
         if (type === 'email') {
             setFormValid({
@@ -60,8 +60,55 @@ export default function RegisterForm() {
         }
     };
 
-    const onRegister = (e) => {
-        console.log(inputs);
+    const onRegister = async (e) => {
+        const emailVal = inputs.email;
+        const passwordVal = inputs.password;
+        const passwordRepeatVal = inputs.passwordRepeat;
+        const privacyPolicyVal = inputs.privacyPolicy;
+
+        if (!emailVal || !passwordVal || !passwordRepeatVal || !privacyPolicyVal) {
+            notification['error']({
+                message: 'Todos los campos son obligatorios.',
+            });
+        } else {
+            if (passwordVal !== passwordRepeatVal) {
+                notification['error']({
+                    message: 'Las contraseñas tienen que ser iguales.',
+                });
+            } else {
+                const result = await signUpApi(inputs);
+                if (!result.ok) {
+                    notification['error']({
+                        message: result.message,
+                    });
+                } else {
+                    notification['success']({
+                        message: result.message,
+                    });
+                    resetForm();
+                }
+            }
+        }
+    };
+
+    const resetForm = () => {
+        const inputs = document.getElementsByTagName('input');
+        for (let i = 0; i < inputs.length; i++) {
+            inputs[i].classList.remove('success');
+            inputs[i].classList.remove('error');
+        }
+        setInputs({
+            email: '',
+            password: '',
+            passwordRepeat: '',
+            privacyPolicy: false,
+        });
+        setFormValid({
+            email: false,
+            password: false,
+            passwordRepeat: false,
+            privacyPolicy: false,
+        });
     };
 
     return (

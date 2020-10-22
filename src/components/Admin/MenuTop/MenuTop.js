@@ -13,6 +13,7 @@ export default function MenuTop(props) {
         logOut();
         window.location.reload();
     };
+
     return (
         <div className="menu-top">
             <div className="menu-top_left">
